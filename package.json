@@ -15,8 +15,8 @@
     "url": "https://github.com/sebastian-meier/d3.geo2rect.git"
   },
   "scripts": {
-    "compile": "eslint src/*.js || exit 0 && rm -rf build && mkdir build && rollup -c rollup.config.js && uglifyjs build/geo2rect.js -c -m -o build/geo2rect.min.js",
-    "watch": "watch 'npm run compile' src"    
+    "compile": "eslint src/*.js || exit 0 && rm -rf build && mkdir build && rollup -c rollup.config.js && uglifyjs ./build/geo2rect.js -c -m -o ./build/geo2rect.min.js",
+    "watch": "watch 'npm run compile' src"
   },
   "devDependencies": {
     "babel-cli": "^6.22.2",
@@ -28,10 +28,10 @@
     "uglify-js": "2",
     "watch": "^1.0.1"
   },
-  "eslintConfig":{
+  "eslintConfig": {
     "parserOptions": {
-        "ecmaVersion": 6,
-        "sourceType": "module"
+      "ecmaVersion": 6,
+      "sourceType": "module"
     },
     "parser": "babel-eslint",
     "env": {
