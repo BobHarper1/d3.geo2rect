@@ -15,7 +15,7 @@
     "url": "https://github.com/sebastian-meier/d3.geo2rect.git"
   },
   "scripts": {
-    "compile": "eslint src/*.js || exit 0 && rm -rf build && mkdir build && rollup -c rollup.config.js && uglifyjs ./build/geo2rect.js -c -m -o ./build/geo2rect.min.js",
+    "compile": "eslint src/*.js || exit 0 && rm -rf build && mkdir build && rollup -c rollup.config.js && uglifyjs build/geo2rect.js -c -m -o build/geo2rect.min.js",
     "watch": "watch 'npm run compile' src"
   },
   "devDependencies": {

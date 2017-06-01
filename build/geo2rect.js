@@ -45,7 +45,7 @@ var compute = function (data) {
     var geom = d.geometry.coordinates[0],
         corners = [];
 
-    if (config.shapes === 'rect') {
+    if (config.shapes === 'hex') {
       var _loop = function _loop(_i) {
 
         var corner = void 0,
@@ -54,16 +54,22 @@ var compute = function (data) {
 
         switch (_i) {
           case 0:
-            pc = [b[0], b[3]];
+            pc = hex[0];
             break;
           case 1:
-            pc = [b[2], b[3]];
+            pc = hex[1];
             break;
           case 2:
-            pc = [b[2], b[1]];
+            pc = hex[2];
             break;
           case 3:
-            pc = [b[0], b[1]];
+            pc = hex[3];
+            break;
+          case 4:
+            pc = hex[4];
+            break;
+          case 5:
+            pc = hex[5];
             break;
         }
 
@@ -106,8 +112,8 @@ var compute = function (data) {
           }
 
           //If there are not enough points left to finish the rectangle go step back
-          if (geom.length - numPoints - pointCount < 4 - _i) {
-            corner -= 4 - _i;
+          if (geom.length - numPoints - pointCount < 6 - _i) {
+            corner -= -_i; // I have no idea how this works, but it does work!
             if (corner < 0) {
               corner += geom.length;
             }
@@ -117,8 +123,8 @@ var compute = function (data) {
         corners.push(corner);
       };
 
-      //Moving through the four corners of the rectangle we find the closest point on the polygon line, making sure the next point is always after the last
-      for (var _i = 0; _i < 4; _i++) {
+      //Moving through the six corners of the hexagon we find the closest point on the polygon line, making sure the next point is always after the last
+      for (var _i = 0; _i < 6; _i++) {
         _loop(_i);
       }
     } else {
@@ -130,22 +136,16 @@ var compute = function (data) {
 
         switch (_i2) {
           case 0:
-            pc = hex[0];
+            pc = [b[0], b[3]];
             break;
           case 1:
-            pc = hex[1];
+            pc = [b[2], b[3]];
             break;
           case 2:
-            pc = hex[2];
+            pc = [b[2], b[1]];
             break;
           case 3:
-            pc = hex[3];
-            break;
-          case 4:
-            pc = hex[4];
-            break;
-          case 5:
-            pc = hex[5];
+            pc = [b[0], b[1]];
             break;
         }
 
@@ -188,8 +188,8 @@ var compute = function (data) {
           }
 
           //If there are not enough points left to finish the rectangle go step back
-          if (geom.length - numPoints - pointCount < 6 - _i2) {
-            corner -= -_i2; // I have no idea how this works, but it does work!
+          if (geom.length - numPoints - pointCount < 4 - _i2) {
+            corner -= 4 - _i2;
             if (corner < 0) {
               corner += geom.length;
             }
@@ -199,8 +199,8 @@ var compute = function (data) {
         corners.push(corner);
       };
 
-      //Moving through the six corners of the hexagon we find the closest point on the polygon line, making sure the next point is always after the last
-      for (var _i2 = 0; _i2 < 6; _i2++) {
+      //Moving through the four corners of the rectangle we find the closest point on the polygon line, making sure the next point is always after the last
+      for (var _i2 = 0; _i2 < 4; _i2++) {
         _loop2(_i2);
       }
     }
@@ -211,36 +211,48 @@ var compute = function (data) {
 
     var ngeom = {};
 
-    if (config.shapes === 'rect') {
-      for (var _i3 = 0; _i3 < 4; _i3++) {
+    if (config.shapes === 'hex') {
+      for (var i = 0; i < 6; i++) {
         var p1 = void 0,
             p2 = void 0,
             ox = void 0,
             oy = void 0;
-        switch (_i3) {
+        switch (i) {
           case 0:
-            ox = 0;
-            oy = 0;
-            p1 = [b[0], b[3]];
-            p2 = [b[2], b[3]];
+            ox = 0.25;
+            oy = 0.07;
+            p1 = hex[0];
+            p2 = hex[1];
             break;
           case 1:
-            ox = 1;
-            oy = 0;
-            p1 = [b[2], b[3]];
-            p2 = [b[2], b[1]];
+            ox = 0.75;
+            oy = 0.07;
+            p1 = hex[1];
+            p2 = hex[2];
             break;
           case 2:
             ox = 1;
-            oy = 1;
-            p1 = [b[2], b[1]];
-            p2 = [b[0], b[1]];
+            oy = 0.5;
+            p1 = hex[2];
+            p2 = hex[3];
             break;
           case 3:
+            ox = 0.75;
+            oy = 0.93;
+            p1 = hex[3];
+            p2 = hex[4];
+            break;
+          case 4:
+            ox = 0.25;
+            oy = 0.93;
+            p2 = hex[4];
+            p1 = hex[5];
+            break;
+          case 5:
             ox = 0;
-            oy = 1;
-            p1 = [b[0], b[1]];
-            p2 = [b[0], b[3]];
+            oy = 0.5;
+            p1 = hex[5];
+            p2 = hex[0];
             break;
         }
 
@@ -256,8 +268,8 @@ var compute = function (data) {
 
         y *= -1;
 
-        var c1 = corners[_i3],
-            c2 = _i3 === corners.length - 1 ? corners[0] : corners[_i3 + 1],
+        var c1 = corners[i],
+            c2 = i === corners.length - 1 ? corners[0] : corners[i + 1],
             numPoints = void 0;
 
         if (c1 < c2) {
@@ -273,53 +285,41 @@ var compute = function (data) {
           }
           ngeom[tp] = {
             c: d.geometry.centroid,
-            x: ox + x / numPoints * j,
-            y: oy + y / numPoints * j
+            x: ox,
+            y: oy
           };
         }
       }
     } else {
-      for (var i = 0; i < 6; i++) {
+      for (var _i3 = 0; _i3 < 4; _i3++) {
         var _p = void 0,
             _p2 = void 0,
             _ox = void 0,
             _oy = void 0;
-        switch (i) {
+        switch (_i3) {
           case 0:
-            _ox = 0.25;
-            _oy = 0.07;
-            _p = hex[0];
-            _p2 = hex[1];
+            _ox = 0;
+            _oy = 0;
+            _p = [b[0], b[3]];
+            _p2 = [b[2], b[3]];
             break;
           case 1:
-            _ox = 0.75;
-            _oy = 0.07;
-            _p = hex[1];
-            _p2 = hex[2];
+            _ox = 1;
+            _oy = 0;
+            _p = [b[2], b[3]];
+            _p2 = [b[2], b[1]];
             break;
           case 2:
             _ox = 1;
-            _oy = 0.5;
-            _p = hex[2];
-            _p2 = hex[3];
+            _oy = 1;
+            _p = [b[2], b[1]];
+            _p2 = [b[0], b[1]];
             break;
           case 3:
-            _ox = 0.75;
-            _oy = 0.93;
-            _p = hex[3];
-            _p2 = hex[4];
-            break;
-          case 4:
-            _ox = 0.25;
-            _oy = 0.93;
-            _p2 = hex[4];
-            _p = hex[5];
-            break;
-          case 5:
             _ox = 0;
-            _oy = 0.5;
-            _p = hex[5];
-            _p2 = hex[0];
+            _oy = 1;
+            _p = [b[0], b[1]];
+            _p2 = [b[0], b[3]];
             break;
         }
 
@@ -335,8 +335,8 @@ var compute = function (data) {
 
         _y *= -1;
 
-        var _c5 = corners[i],
-            _c6 = i === corners.length - 1 ? corners[0] : corners[i + 1],
+        var _c5 = corners[_i3],
+            _c6 = _i3 === corners.length - 1 ? corners[0] : corners[_i3 + 1],
             _numPoints3 = void 0;
 
         if (_c5 < _c6) {
@@ -352,8 +352,8 @@ var compute = function (data) {
           }
           ngeom[_tp] = {
             c: d.geometry.centroid,
-            x: _ox,
-            y: _oy
+            x: _ox + _x / _numPoints3 * _j,
+            y: _oy + _y / _numPoints3 * _j
           };
         }
       }

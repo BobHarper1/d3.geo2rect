@@ -46,7 +46,85 @@ export default function(data) {
     let geom = d.geometry.coordinates[0],
       corners = [];
 
-    if (config.shapes === 'rect') {
+    if (config.shapes === 'hex') {
+      //Moving through the six corners of the hexagon we find the closest point on the polygon line, making sure the next point is always after the last
+      for (let i = 0; i < 6; i++) {
+
+        let corner,
+          dist = Number.MAX_VALUE,
+          pc;
+
+        switch (i) {
+          case 0:
+            pc = hex[0];
+            break;
+          case 1:
+            pc = hex[1];
+            break;
+          case 2:
+            pc = hex[2];
+            break;
+          case 3:
+            pc = hex[3];
+            break;
+          case 4:
+            pc = hex[4];
+            break;
+          case 5:
+            pc = hex[5];
+            break;
+        }
+
+        geom.forEach((dd, ddi) => {
+          let t_dist = Math.abs(Math.sqrt((Math.pow((pc[0] - dd[0]), 2) + Math.pow((pc[1] - dd[1]), 2))));
+          if (t_dist < dist && (ddi < corners[0] || ddi > corners[corners.length - 1] ||  corners.length === 0)) {
+            dist = t_dist;
+            corner = ddi;
+          }
+        });
+
+        if (corners.length >= 1) {
+          //Counting the points already used up
+          let pointCount = 0;
+          if (corners.length >= 2) {
+            for (let j = 1; j < corners.length; j++) {
+              let c1 = corners[j],
+                c2 = corners[j - 1],
+                numPoints;
+
+              if (c2 < c1) {
+                numPoints = c1 - c2;
+              } else {
+                numPoints = c1 + (geom.length - c2);
+              }
+
+              pointCount += numPoints;
+            }
+          }
+
+          //get numpoints for new potential point
+          let c1 = corners[corners.length - 1],
+            c2 = corner,
+            numPoints;
+
+          if (c1 < c2) {
+            numPoints = c2 - c1;
+          } else {
+            numPoints = c2 + (geom.length - c1);
+          }
+
+          //If there are not enough points left to finish the rectangle go step back
+          if (geom.length - numPoints - pointCount < 6 - i) {
+            corner -= -i; // I have no idea how this works, but it does work!
+            if (corner < 0) {
+              corner += geom.length;
+            }
+          }
+        }
+
+        corners.push(corner);
+      }
+    } else {
       //Moving through the four corners of the rectangle we find the closest point on the polygon line, making sure the next point is always after the last
       for (let i = 0; i < 4; i++) {
 
@@ -118,84 +196,6 @@ export default function(data) {
 
         corners.push(corner);
       }
-    } else {
-      //Moving through the six corners of the hexagon we find the closest point on the polygon line, making sure the next point is always after the last
-      for (let i = 0; i < 6; i++) {
-
-        let corner,
-          dist = Number.MAX_VALUE,
-          pc;
-
-        switch (i) {
-          case 0:
-            pc = hex[0];
-            break;
-          case 1:
-            pc = hex[1];
-            break;
-          case 2:
-            pc = hex[2];
-            break;
-          case 3:
-            pc = hex[3];
-            break;
-          case 4:
-            pc = hex[4];
-            break;
-          case 5:
-            pc = hex[5];
-            break;
-        }
-
-        geom.forEach((dd, ddi) => {
-          let t_dist = Math.abs(Math.sqrt((Math.pow((pc[0] - dd[0]), 2) + Math.pow((pc[1] - dd[1]), 2))));
-          if (t_dist < dist && (ddi < corners[0] || ddi > corners[corners.length - 1] ||  corners.length === 0)) {
-            dist = t_dist;
-            corner = ddi;
-          }
-        });
-
-        if (corners.length >= 1) {
-          //Counting the points already used up
-          let pointCount = 0;
-          if (corners.length >= 2) {
-            for (let j = 1; j < corners.length; j++) {
-              let c1 = corners[j],
-                c2 = corners[j - 1],
-                numPoints;
-
-              if (c2 < c1) {
-                numPoints = c1 - c2;
-              } else {
-                numPoints = c1 + (geom.length - c2);
-              }
-
-              pointCount += numPoints;
-            }
-          }
-
-          //get numpoints for new potential point
-          let c1 = corners[corners.length - 1],
-            c2 = corner,
-            numPoints;
-
-          if (c1 < c2) {
-            numPoints = c2 - c1;
-          } else {
-            numPoints = c2 + (geom.length - c1);
-          }
-
-          //If there are not enough points left to finish the rectangle go step back
-          if (geom.length - numPoints - pointCount < 6 - i) {
-            corner -= -i;  // I have no idea how this works, but it does work!
-            if (corner < 0) {
-              corner += geom.length;
-            }
-          }
-        }
-
-        corners.push(corner);
-      }
     }
 
     //NOTE: to myself Outer rings are counter clockwise
@@ -204,71 +204,7 @@ export default function(data) {
 
     let ngeom = {};
 
-    if (config.shapes === 'rect') {
-      for (let i = 0; i < 4; i++) {
-        let p1, p2, ox, oy;
-        switch (i) {
-          case 0:
-            ox = 0;
-            oy = 0;
-            p1 = [b[0], b[3]];
-            p2 = [b[2], b[3]];
-            break;
-          case 1:
-            ox = 1;
-            oy = 0;
-            p1 = [b[2], b[3]];
-            p2 = [b[2], b[1]];
-            break;
-          case 2:
-            ox = 1;
-            oy = 1;
-            p1 = [b[2], b[1]];
-            p2 = [b[0], b[1]];
-            break;
-          case 3:
-            ox = 0;
-            oy = 1;
-            p1 = [b[0], b[1]];
-            p2 = [b[0], b[3]];
-            break;
-        }
-
-        let x = p2[0] - p1[0],
-          y = p2[1] - p1[1];
-
-        if (x != 0) {
-          x = x / Math.abs(x);
-        }
-        if (y != 0) {
-          y = y / Math.abs(y);
-        }
-
-        y *= -1;
-
-        let c1 = corners[i],
-          c2 = (i === corners.length - 1) ? corners[0] : corners[i + 1],
-          numPoints;
-
-        if (c1 < c2) {
-          numPoints = c2 - c1;
-        } else {
-          numPoints = c2 + (geom.length - c1);
-        }
-
-        for (let j = 0; j < numPoints; j++) {
-          let tp = c1 + j;
-          if (tp > (geom.length - 1)) {
-            tp -= geom.length;
-          }
-          ngeom[tp] = {
-            c: d.geometry.centroid,
-            x: ox + x / numPoints * j,
-            y: oy + y / numPoints * j
-          };
-        }
-      }
-    } else {
+    if (config.shapes === 'hex') {
       for (var i = 0; i < 6; i++) {
         let p1, p2, ox, oy;
         switch (i) {
@@ -341,6 +277,70 @@ export default function(data) {
             c: d.geometry.centroid,
             x: ox,
             y: oy
+          };
+        }
+      }
+    } else {
+      for (let i = 0; i < 4; i++) {
+        let p1, p2, ox, oy;
+        switch (i) {
+          case 0:
+            ox = 0;
+            oy = 0;
+            p1 = [b[0], b[3]];
+            p2 = [b[2], b[3]];
+            break;
+          case 1:
+            ox = 1;
+            oy = 0;
+            p1 = [b[2], b[3]];
+            p2 = [b[2], b[1]];
+            break;
+          case 2:
+            ox = 1;
+            oy = 1;
+            p1 = [b[2], b[1]];
+            p2 = [b[0], b[1]];
+            break;
+          case 3:
+            ox = 0;
+            oy = 1;
+            p1 = [b[0], b[1]];
+            p2 = [b[0], b[3]];
+            break;
+        }
+
+        let x = p2[0] - p1[0],
+          y = p2[1] - p1[1];
+
+        if (x != 0) {
+          x = x / Math.abs(x);
+        }
+        if (y != 0) {
+          y = y / Math.abs(y);
+        }
+
+        y *= -1;
+
+        let c1 = corners[i],
+          c2 = (i === corners.length - 1) ? corners[0] : corners[i + 1],
+          numPoints;
+
+        if (c1 < c2) {
+          numPoints = c2 - c1;
+        } else {
+          numPoints = c2 + (geom.length - c1);
+        }
+
+        for (let j = 0; j < numPoints; j++) {
+          let tp = c1 + j;
+          if (tp > (geom.length - 1)) {
+            tp -= geom.length;
+          }
+          ngeom[tp] = {
+            c: d.geometry.centroid,
+            x: ox + x / numPoints * j,
+            y: oy + y / numPoints * j
           };
         }
       }
