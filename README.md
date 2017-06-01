@@ -1,4 +1,4 @@
-# d3.geo2rect
+# d3.geo2rect*hex*
 ## Morphing geojson polygons into rectangles and hexagons
 
 ![DemoClip](https://raw.githubusercontent.com/BobHarper1/d3.geo2rect/master/thumb.gif)
