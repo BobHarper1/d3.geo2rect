@@ -1,15 +1,17 @@
 # d3.geo2rect
-## Morphing geojson polygons into rectangles 
+## Morphing geojson polygons into rectangles and hexagons
 
-![DemoClip](https://raw.githubusercontent.com/sebastian-meier/d3.geo2rect/master/thumb.gif)
+![DemoClip](https://raw.githubusercontent.com/BobHarper1/d3.geo2rect/master/thumb.gif)
 
 The package has two modules: compute (function) and draw (class).
 For using this one needs to include the d3 and turf.js library.
 
+It extends [Sebastian Meier's d3.geo2rect](https://github.com/sebastian-meier/d3.geo2rect) package to allow morphing into hexagon shapes.
+
 ## compute
 
-Compute for morphing a geojson into rectangles we need to clean the geojson first. All MultiPolygons will be transformed into Polygons (largest polygon will be used). Holes will be removed. The original data is stored in .geometry.ocoordinates.
-Afterwards a second set of coordinates is being generated representing a rectangle. The rectangle has the bounding box 0,0|1,1 so its easy to transform. In addition each coordinate has its centroid in the geo-space stored within. The rectangle coordinates are stored in .geometry.qcoordinates.
+Compute for morphing a geojson into rectangles or hexagons we need to clean the geojson first. All MultiPolygons will be transformed into Polygons (largest polygon will be used). Holes will be removed. The original data is stored in .geometry.ocoordinates.
+Afterwards a second set of coordinates is being generated representing either a rectangle or a hexagon. The rectangle has the bounding box 0,0|1,1 so its easy to transform, whereas the hexagon is a bit more complex. In addition each coordinate has its centroid in the geo-space stored within. The rectangle/hexagon coordinates are stored in .geometry.qcoordinates.
 
 ```
 d3.json('./data/de.geojson', function(err, data){
@@ -26,12 +28,13 @@ Simply create a new draw instance:
 var g2r = new geo2rect.draw();
 ```
 
-Send the configs:
+Send the configs, including the `shapes` value of either `'hex'` or `'rect'`:
 ```
 var config = {
   width : 700,
   height : 700,
   padding : 70,
+  shapes: 'hex',
   projection : d3.geoMercator(),
   duration : 1000,
   key:function(d){return d.properties.Kurz; },
@@ -56,7 +59,11 @@ var config = {
 };
 g2r.config = config;
 ```
+If not set, the default `config.shapes` setting will be for rectangles.
+
 Please note, that this script does not compute the grid layout. See [nmap](https://github.com/sebastian-meier/nmap.js) and [nmap-squared](https://github.com/sebastian-meier/nmap-squared.js) for examples of how to do this automatically.
+
+For hexagons, you can use the same grid as for rectangles, the script will offset the columns so that the regular pattern is achieved.
 
 Then send the computed data from the compute function:
 ```
