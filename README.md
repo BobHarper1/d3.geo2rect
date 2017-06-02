@@ -101,7 +101,6 @@ In the examples folder you find three examples for the states of Germany and the
 
 Live examples can be found here:
 
-[Germany](http://prjcts.sebastianmeier.eu/geo2rect/example/index_de.html)
-[US](http://prjcts.sebastianmeier.eu/geo2rect/example/index_us.html)
-[London](http://prjcts.sebastianmeier.eu/geo2rect/example/index_ldn.html)
-
+[Germany](https://cdn.rawgit.com/BobHarper1/d3.geo2recthex/master/example/index_de.html)
+[US](https://cdn.rawgit.com/BobHarper1/d3.geo2recthex/master/example/index_us.html)
+[London](https://cdn.rawgit.com/BobHarper1/d3.geo2recthex/master/example/index_ldn.html)
