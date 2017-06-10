@@ -205,6 +205,15 @@ var compute = function (data) {
       }
     }
 
+    function sortUp(array) {
+      var first = array[0];
+      array.sort(function (a, b) {
+        return (a < first) - (b < first) || a - b;
+      });
+      return array;
+    }
+    corners = sortUp(corners);
+
     //NOTE: to myself Outer rings are counter clockwise
 
     //Finding the closest point to each corner
